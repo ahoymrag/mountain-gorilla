@@ -1,12 +1,11 @@
 """
-ASCII art for each bot. 
-Feel free to add or modify these as you wish.
+ASCII art for each bot. Feel free to change or expand these.
 """
 
 bot_ascii = {
     "MemoriBot": r"""
       ____
-     (o  o)  📝 
+     (o  o)  📝
       |  |
       ||||
     """,
@@ -36,5 +35,8 @@ bot_ascii = {
     """
 }
 
-def get_ascii_bot(name: str) -> str:
-    return bot_ascii.get(name, "🤖 [Unknown Bot]")
+def get_ascii_bot(bot_name: str) -> str:
+    """
+    Return ASCII art for the given bot name, or a default if not found.
+    """
+    return bot_ascii.get(bot_name, "🤖 [Unknown Bot]")

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 """
-Entry point script for MGCC. 
-Run 'python main.py' or install with 'pip install -e .' and then run 'mgcc'.
+Entry point script for the Mountain Gorilla Command Center CLI.
+After placing all files in the recommended structure, simply run:
+  python main.py
+from the 'mountain-gorilla' folder to start the CLI.
 """
 
 from mountain_gorilla.cli import mgcc_cli
