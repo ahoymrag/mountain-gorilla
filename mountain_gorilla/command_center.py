@@ -3,7 +3,7 @@ CommandCenter - a Pokédex-like manager for your ASCII AI bots.
 """
 
 from mountain_gorilla.ascii_bots import get_ascii_bot
-from mountain_gorilla.animations import spinner_animation, typing_effect
+from mountain_gorilla.animations import spinner_animation, typing_effect, loading_bar
 
 class CommandCenter:
     # Simple dictionary representing your bots.
@@ -31,6 +31,7 @@ class CommandCenter:
             return
 
         typing_effect(f"Summoning {bot_name}...\n")
+        loading_bar(duration=3.0, message="Preparing")
         ascii_art = get_ascii_bot(bot_name)
         print(ascii_art)
 

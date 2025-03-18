@@ -1,6 +1,6 @@
 """
 Terminal animations to add flavor to your CLI.
-Example: spinner animation and a typing effect.
+Example: spinner animation, typing effect, and loading bar.
 """
 
 import sys
@@ -39,4 +39,24 @@ def typing_effect(text, delay=0.03):
         sys.stdout.flush()
         time.sleep(delay)
     sys.stdout.write("\n")
+    sys.stdout.flush()
+
+def loading_bar(duration=2.0, message="Loading"):
+    """
+    A simple loading bar animation.
+    """
+    bar_length = 30
+    end_time = time.time() + duration
+    sys.stdout.write(f"{message} [")
+    sys.stdout.flush()
+
+    while time.time() < end_time:
+        elapsed = duration - (end_time - time.time())
+        filled_length = int(bar_length * elapsed // duration)
+        bar = '=' * filled_length + '-' * (bar_length - filled_length)
+        sys.stdout.write(f"\r{message} [{bar}]")
+        sys.stdout.flush()
+        time.sleep(0.1)
+
+    sys.stdout.write("]\n")
     sys.stdout.flush()
