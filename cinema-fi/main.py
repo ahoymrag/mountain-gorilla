@@ -43,9 +43,10 @@ def main_menu():
         print(Fore.WHITE + "  8. Explore Films")
         print(Fore.WHITE + "  9. Benefits and Perks")
         print(Fore.WHITE + " 10. Launch UI")
+        print(Fore.WHITE + " 11. Account Settings")  # New menu item
         print(Fore.WHITE + "  0. Exit")
         print_border()
-        choice = input(Fore.CYAN + "\nEnter your choice (0-10): ").strip()
+        choice = input(Fore.CYAN + "\nEnter your choice (0-11): ").strip()
         
         if choice == "1":
             view_balance()
@@ -67,6 +68,8 @@ def main_menu():
             benefits_and_perks()
         elif choice == "10":
             launch_ui()
+        elif choice == "11":
+            account_settings()  # New function call
         elif choice == "0":
             print(Fore.YELLOW + "\nExiting CinemaFi Command Center. Goodbye!")
             break
@@ -152,7 +155,7 @@ def transfer():
     clear_screen()
     print_border()
     print(Fore.CYAN + "|                     TRANSFER FUNDS                       |")
-    print(Border := Fore.MAGENTA + "+" + "-" * 68 + "+")  # Optional re-use of border
+    print_border()
     print(Fore.WHITE + "\nTransfer funds to another account or withdraw your investment.")
     print(Fore.WHITE + "Always verify the recipient details before confirming any transfers.")
     print(Fore.WHITE + "\nThis simulated function logs your transfer requests securely.")
@@ -212,7 +215,7 @@ def explore_films():
             print(Fore.RED + f"Amount exceeds the remaining funding (${remaining:,}). Investing maximum remaining amount.")
             amount = remaining
         project["invested"] += amount
-        print(Fore.GREEN + f"\nSuccessfully invested ${amount:,.2f} in '{project['name']}'!")
+        print(Fore.GREEN + f"\nSuccessfully invested ${amount:,.2f} in '{project['name']}''!")
         print(Fore.GREEN + f"Total Invested: ${project['invested']:,.2f} out of ${project['required']:,}")
     else:
         print(Fore.YELLOW + "\nNo investment made. Returning to the Main Menu...")
@@ -247,6 +250,65 @@ def launch_ui():
     webbrowser.open(url)
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
+
+def account_settings():
+    """New function to handle account settings like connecting to external accounts, preferences, etc."""
+    while True:
+        clear_screen()
+        print_border()
+        print(Fore.CYAN + "|                    ACCOUNT SETTINGS                      |")
+        print_border()
+        print(Fore.WHITE + "  1. Connect External Account")
+        print(Fore.WHITE + "  2. User Preferences")
+        print(Fore.WHITE + "  3. Admin Tools")
+        print(Fore.WHITE + "  0. Return to Main Menu")
+        print_border()
+        choice = input(Fore.CYAN + "\nEnter your choice (0-3): ").strip()
+        
+        if choice == "1":
+            connect_external_account()
+        elif choice == "2":
+            user_preferences()
+        elif choice == "3":
+            admin_tools()
+        elif choice == "0":
+            break
+        else:
+            print(Fore.RED + "\nInvalid choice, please try again.")
+            time.sleep(1)
+
+def connect_external_account():
+    clear_screen()
+    print_border()
+    print(Fore.CYAN + "|                CONNECT EXTERNAL ACCOUNT                  |")
+    print_border()
+    print(Fore.WHITE + "\nIn this section, you can link external wallets or accounts for easier transfers.")
+    print(Fore.WHITE + "Supported integrations will expand in the future.")
+    print(Fore.WHITE + "\n(Placeholder demonstration — actual implementation may vary.)")
+    print_border()
+    input(Fore.CYAN + "\nPress Enter to return to Account Settings...")
+
+def user_preferences():
+    clear_screen()
+    print_border()
+    print(Fore.CYAN + "|                   USER PREFERENCES                       |")
+    print_border()
+    print(Fore.WHITE + "\nCustomize your CinemaFi experience, such as interface color themes,")
+    print(Fore.WHITE + "notification settings, and more.")
+    print(Fore.WHITE + "\n(Placeholder demonstration — actual implementation may vary.)")
+    print_border()
+    input(Fore.CYAN + "\nPress Enter to return to Account Settings...")
+
+def admin_tools():
+    clear_screen()
+    print_border()
+    print(Fore.CYAN + "|                     ADMIN TOOLS                          |")
+    print_border()
+    print(Fore.WHITE + "\nAccess advanced administrative features (if authorized).")
+    print(Fore.WHITE + "This may include project approvals, user management, and auditing.")
+    print(Fore.WHITE + "\n(Placeholder demonstration — actual implementation may vary.)")
+    print_border()
+    input(Fore.CYAN + "\nPress Enter to return to Account Settings...")
 
 if __name__ == "__main__":
     main_menu()
