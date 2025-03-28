@@ -1,10 +1,24 @@
 #!/usr/bin/env python3
 import os
 import time
+import webbrowser
 from colorama import Fore, Style, init
 
 # Initialize colorama for colored terminal output
 init(autoreset=True)
+
+# Global wallet dictionary for the user (ETH supported; others coming soon)
+wallet = {
+    "ETH": 0.0,
+    "BTC": 0.0  # Coming soon
+}
+
+# Global film projects available for investment
+projects = {
+    "1": {"name": "Indie Film A", "required": 100000, "invested": 0},
+    "2": {"name": "Documentary B", "required": 50000, "invested": 0},
+    "3": {"name": "Short Film C", "required": 20000, "invested": 0}
+}
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -28,9 +42,10 @@ def main_menu():
         print(Fore.WHITE + "  7. Learn")
         print(Fore.WHITE + "  8. Explore Films")
         print(Fore.WHITE + "  9. Benefits and Perks")
+        print(Fore.WHITE + " 10. Launch UI")
         print(Fore.WHITE + "  0. Exit")
         print_border()
-        choice = input(Fore.CYAN + "\nEnter your choice (0-9): ").strip()
+        choice = input(Fore.CYAN + "\nEnter your choice (0-10): ").strip()
         
         if choice == "1":
             view_balance()
@@ -50,8 +65,10 @@ def main_menu():
             explore_films()
         elif choice == "9":
             benefits_and_perks()
+        elif choice == "10":
+            launch_ui()
         elif choice == "0":
-            print(Fore.YELLOW + "\nExiting Cinemafi Investment Command Center. Goodbye!")
+            print(Fore.YELLOW + "\nExiting CinemaFi Command Center. Goodbye!")
             break
         else:
             print(Fore.RED + "\nInvalid choice, please try again.")
@@ -60,12 +77,12 @@ def main_menu():
 def view_balance():
     clear_screen()
     print_border()
-    print(Fore.CYAN + "|                  YOUR BALANCE OVERVIEW                 |")
+    print(Fore.CYAN + "|                  YOUR WALLET BALANCE                   |")
     print_border()
-    # Example balance information
-    balance = 25000.75
-    print(Fore.WHITE + f"\nCurrent Balance: ${balance:,.2f}")
-    print(Fore.WHITE + "\nThis is the total amount available for your investments.")
+    for coin, amount in wallet.items():
+        print(Fore.WHITE + f"{coin}: {amount:.4f}")
+    print(Fore.WHITE + "\nYour wallet holds the funds available for your investments.")
+    print(Fore.WHITE + "Currently, only ETH is supported. BTC and other coins are coming soon!")
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
@@ -74,7 +91,7 @@ def view_positions():
     print_border()
     print(Fore.CYAN + "|                YOUR CURRENT INVESTMENT POSITIONS         |")
     print_border()
-    # Example positions
+    # Example positions from film projects
     positions = {
         "Indie Film A": "$10,000",
         "Documentary B": "$5,000",
@@ -82,7 +99,7 @@ def view_positions():
     }
     for film, pos in positions.items():
         print(Fore.WHITE + f"{film}: {pos}")
-    print(Fore.WHITE + "\nThese positions show the value of your investments in various films.")
+    print(Fore.WHITE + "\nThese positions show the amount invested in various film projects.")
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
@@ -91,9 +108,9 @@ def exchange_positions():
     print_border()
     print(Fore.CYAN + "|                EXCHANGE YOUR INVESTMENT POSITIONS        |")
     print_border()
-    print(Fore.WHITE + "\nExchange positions allow you to trade parts of your current investments.")
-    print(Fore.WHITE + "This helps you rebalance your portfolio or take advantage of market fluctuations.")
-    print(Fore.WHITE + "\nNote: This is a simulated interface for demonstration purposes.")
+    print(Fore.WHITE + "\nExchange positions allow you to trade portions of your current investments.")
+    print(Fore.WHITE + "This simulated feature helps you rebalance your portfolio or adjust your exposure.")
+    print(Fore.WHITE + "\nNote: This is a demo function.")
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
@@ -102,9 +119,21 @@ def deposit_coin():
     print_border()
     print(Fore.CYAN + "|                    DEPOSIT COINS                         |")
     print_border()
-    print(Fore.WHITE + "\nDeposit coins to increase your available capital for investments.")
-    print(Fore.WHITE + "Follow the provided instructions to securely deposit your cryptocurrency.")
-    print(Fore.WHITE + "\nFor example, send your coins to the provided wallet address and confirm the deposit.")
+    print(Fore.WHITE + "\nDeposit ETH to increase your wallet balance for investments.")
+    print(Fore.WHITE + "Other coins (e.g., BTC) will be supported soon!")
+    try:
+        amount = float(input(Fore.CYAN + "\nEnter amount of ETH to deposit: "))
+        if amount <= 0:
+            print(Fore.RED + "Deposit amount must be positive.")
+            time.sleep(1)
+            return
+    except ValueError:
+        print(Fore.RED + "Invalid amount entered.")
+        time.sleep(1)
+        return
+    wallet["ETH"] += amount
+    print(Fore.GREEN + f"\nSuccessfully deposited {amount:.4f} ETH!")
+    print(Fore.GREEN + f"New ETH Balance: {wallet['ETH']:.4f} ETH")
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
@@ -114,8 +143,8 @@ def dividends():
     print(Fore.CYAN + "|                     DIVIDEND PAYMENTS                    |")
     print_border()
     print(Fore.WHITE + "\nDividends represent the share of profits distributed from film revenues.")
-    print(Fore.WHITE + "They are automatically calculated based on your investment proportion.")
-    print(Fore.WHITE + "\nReview your dividend history to see your earnings.")
+    print(Fore.WHITE + "They are calculated based on your investment share in each film project.")
+    print(Fore.WHITE + "\nReview your dividend history and projected earnings in your account.")
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
@@ -123,10 +152,10 @@ def transfer():
     clear_screen()
     print_border()
     print(Fore.CYAN + "|                     TRANSFER FUNDS                       |")
-    print_border()
+    print(Border := Fore.MAGENTA + "+" + "-" * 68 + "+")  # Optional re-use of border
     print(Fore.WHITE + "\nTransfer funds to another account or withdraw your investment.")
-    print(Fore.WHITE + "Ensure you verify recipient details before confirming any transfers.")
-    print(Fore.WHITE + "\nThis feature secures your transactions and tracks your transfer history.")
+    print(Fore.WHITE + "Always verify the recipient details before confirming any transfers.")
+    print(Fore.WHITE + "\nThis simulated function logs your transfer requests securely.")
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
@@ -135,9 +164,18 @@ def learn():
     print_border()
     print(Fore.CYAN + "|                        LEARN MORE                        |")
     print_border()
-    print(Fore.WHITE + "\nLearn about film investments, blockchain technology, and NFT trading.")
-    print(Fore.WHITE + "Educational resources help you understand market trends and investment risks.")
-    print(Fore.WHITE + "\nTopics include: Investment basics, market analysis, and technical insights.")
+    print(Fore.WHITE + "\nWelcome to the CinemaFi learning module!")
+    print(Fore.WHITE + "\nInvestment Schedule & Process:")
+    print(Fore.WHITE + "  - Submission & Evaluation: Filmmakers submit projects for review.")
+    print(Fore.WHITE + "  - Tokenization: Film frames are tokenized into NFTs as investment shares.")
+    print(Fore.WHITE + "  - Investment Window: Investors have a set period to fund a project.")
+    print(Fore.WHITE + "  - Funding & Production: Once fully funded, projects move to production.")
+    print(Fore.WHITE + "  - Revenue & Dividends: Film revenues are shared as dividends based on NFT ownership.")
+    print(Fore.WHITE + "\nWhat to Expect & Impact:")
+    print(Fore.WHITE + "  - Transparent and democratized film funding via blockchain technology.")
+    print(Fore.WHITE + "  - Cultural impact by supporting independent films and innovative storytelling.")
+    print(Fore.WHITE + "  - Potential returns via dividends and market appreciation over time.")
+    print(Fore.WHITE + "\nOur platform directly connects filmmakers with investors to bridge the funding gap.")
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
@@ -146,9 +184,38 @@ def explore_films():
     print_border()
     print(Fore.CYAN + "|                    EXPLORE FILM PROJECTS                   |")
     print_border()
-    print(Fore.WHITE + "\nDiscover a curated selection of film projects seeking investment.")
-    print(Fore.WHITE + "Each listing provides project vision, funding requirements, and potential returns.")
-    print(Fore.WHITE + "\nExplore and evaluate the films to decide where to invest.")
+    # Display three highlighted film projects
+    for pid, details in projects.items():
+        required = details["required"]
+        invested = details["invested"]
+        remaining = required - invested
+        print(Fore.WHITE + f"{pid}. {details['name']}")
+        print(Fore.WHITE + f"   Funding Required: ${required:,}")
+        print(Fore.WHITE + f"   Already Invested: ${invested:,}")
+        print(Fore.WHITE + f"   Remaining: ${remaining:,}\n")
+    print(Fore.WHITE + "Would you like to invest in one of these projects now?")
+    choice = input(Fore.CYAN + "Enter project number to invest (or press Enter to cancel): ").strip()
+    if choice in projects:
+        project = projects[choice]
+        try:
+            amount = float(input(Fore.CYAN + f"Enter amount to invest in '{project['name']}': "))
+            if amount <= 0:
+                print(Fore.RED + "Investment amount must be positive.")
+                time.sleep(1)
+                return
+        except ValueError:
+            print(Fore.RED + "Invalid amount entered.")
+            time.sleep(1)
+            return
+        remaining = project["required"] - project["invested"]
+        if amount > remaining:
+            print(Fore.RED + f"Amount exceeds the remaining funding (${remaining:,}). Investing maximum remaining amount.")
+            amount = remaining
+        project["invested"] += amount
+        print(Fore.GREEN + f"\nSuccessfully invested ${amount:,.2f} in '{project['name']}'!")
+        print(Fore.GREEN + f"Total Invested: ${project['invested']:,.2f} out of ${project['required']:,}")
+    else:
+        print(Fore.YELLOW + "\nNo investment made. Returning to the Main Menu...")
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
@@ -157,10 +224,27 @@ def benefits_and_perks():
     print_border()
     print(Fore.CYAN + "|                BENEFITS & PERKS OF INVESTING               |")
     print_border()
-    print(Fore.WHITE + "\nInvesting with CinemaFi offers exclusive benefits and perks.")
-    print(Fore.WHITE + "Enjoy early access to film releases, behind-the-scenes content, special event invites,")
-    print(Fore.WHITE + "and potential dividend earnings based on your investment performance.")
-    print(Fore.WHITE + "\nMaximize your returns while enjoying the cinematic experience.")
+    print(Fore.WHITE + "\nInvesting with CinemaFi unlocks exclusive benefits and perks:")
+    print(Fore.WHITE + "  - Early access to film premieres and exclusive events.")
+    print(Fore.WHITE + "  - Behind-the-scenes content and filmmaker Q&A sessions.")
+    print(Fore.WHITE + "  - Dividend earnings based on film revenue performance.")
+    print(Fore.WHITE + "  - Special investor-only rewards and merchandise discounts.")
+    print(Fore.WHITE + "\nThese benefits not only enhance your investment experience but also")
+    print(Fore.WHITE + "create a deeper connection with the indie film community.")
+    print_border()
+    input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
+
+def launch_ui():
+    clear_screen()
+    print_border()
+    print(Fore.CYAN + "|                     LAUNCHING UI                         |")
+    print_border()
+    print(Fore.WHITE + "\nLaunching the CinemaFi User Interface...")
+    print(Fore.WHITE + "This will open your default web browser to the CinemaFi UI portal.")
+    # Simulate launching a UI by opening a placeholder URL
+    url = "http://localhost:8000/ui"  # Replace with your actual UI URL when available
+    print(Fore.GREEN + f"\nOpening: {url}")
+    webbrowser.open(url)
     print_border()
     input(Fore.CYAN + "\nPress Enter to return to the Main Menu...")
 
