@@ -120,6 +120,12 @@
                     </svg>
                     <span>My Bots</span>
                 </a>
+                <a href="#" class="flex items-center space-x-2 text-gray-400 hover:text-white" onclick="showAICollaboration()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>AI Collaboration</span>
+                </a>
                 <a href="#" class="flex items-center space-x-2 text-gray-400 hover:text-white">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
@@ -250,6 +256,50 @@
                             <p class="text-gray-300 text-sm">Motivation and guidance</p>
                             <div class="mt-2 text-xs text-gray-400">From CoachBot</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Collaboration View -->
+            <div id="aiCollaborationView" class="hidden space-y-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-purple-400">AI-Powered Bot Collaboration</h2>
+                    <button onclick="showCreateCollaborationModal()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>New Collaboration</span>
+                    </button>
+                </div>
+
+                <!-- Active Collaborations -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="stream-card rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-4">Active Collaborations</h3>
+                        <div id="activeCollaborations" class="space-y-4">
+                            <!-- Active collaborations will be populated dynamically -->
+                        </div>
+                    </div>
+                    <div class="stream-card rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-4">AI Insights</h3>
+                        <div id="aiInsights" class="space-y-4">
+                            <!-- AI insights will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collaboration Chat -->
+                <div class="stream-card rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-blue-400 mb-4">Collaboration Chat</h3>
+                    <div id="collaborationChat" class="h-64 overflow-y-auto mb-4 space-y-2">
+                        <!-- Chat messages will be populated dynamically -->
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="chatInput" class="flex-1 bg-gray-700 text-white rounded p-2" placeholder="Type a message...">
+                        <button onclick="sendChatMessage()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                            Send
+                        </button>
                     </div>
                 </div>
             </div>
@@ -436,6 +486,57 @@
                     <button onclick="createCustomBot()" 
                             class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
                         Create Bot
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Collaboration Modal -->
+    <div id="createCollaborationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-purple-400">Create New Collaboration</h2>
+                    <button onclick="closeCreateCollaborationModal()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 mb-2">Task Description</label>
+                        <textarea id="taskDescription" class="w-full bg-gray-700 text-white rounded p-2 h-32" placeholder="Describe the task..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Required Capabilities</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="memory">
+                                <span class="text-gray-300">Memory</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="finance">
+                                <span class="text-gray-300">Finance</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="trading">
+                                <span class="text-gray-300">Trading</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="task">
+                                <span class="text-gray-300">Task Management</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="coaching">
+                                <span class="text-gray-300">Coaching</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button onclick="createCollaboration()" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                        Create Collaboration
                     </button>
                 </div>
             </div>
@@ -724,7 +825,9 @@
 - streams: Show active streams
 - analytics: Show analytics dashboard
 - mybots: Show My Bots dashboard
-- createbot: Open Create Custom Bot modal`;
+- createbot: Open Create Custom Bot modal
+- ai: Show AI Collaboration dashboard
+- newcollab: Open Create Collaboration modal`;
                     break;
                 case 'status':
                     response = `System Status:
@@ -755,6 +858,14 @@
                 case 'createbot':
                     showCreateBotModal();
                     response = 'Opening Create Custom Bot modal...';
+                    break;
+                case 'ai':
+                    showAICollaboration();
+                    response = 'Showing AI Collaboration dashboard...';
+                    break;
+                case 'newcollab':
+                    showCreateCollaborationModal();
+                    response = 'Opening Create Collaboration modal...';
                     break;
                 default:
                     if (cmd.startsWith('train ')) {
@@ -981,6 +1092,181 @@
             } catch (error) {
                 console.error('Error:', error);
                 alert('Failed to load bot details');
+            }
+        }
+
+        // AI Collaboration functionality
+        function showAICollaboration() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('analyticsView').classList.add('hidden');
+            document.getElementById('streamsView').classList.add('hidden');
+            document.getElementById('myBotsView').classList.add('hidden');
+            document.getElementById('aiCollaborationView').classList.remove('hidden');
+            loadActiveCollaborations();
+        }
+
+        function showCreateCollaborationModal() {
+            document.getElementById('createCollaborationModal').classList.remove('hidden');
+        }
+
+        function closeCreateCollaborationModal() {
+            document.getElementById('createCollaborationModal').classList.add('hidden');
+        }
+
+        async function createCollaboration() {
+            const task = document.getElementById('taskDescription').value;
+            const capabilities = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+
+            if (!task || capabilities.length === 0) {
+                alert('Please enter a task and select at least one capability');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/ai/collaborate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        task: task,
+                        capabilities: capabilities
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    loadActiveCollaborations();
+                    closeCreateCollaborationModal();
+                } else {
+                    alert('Failed to create collaboration');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create collaboration');
+            }
+        }
+
+        async function loadActiveCollaborations() {
+            try {
+                const response = await fetch('/api/ai/collaborations');
+                const data = await response.json();
+                
+                const container = document.getElementById('activeCollaborations');
+                container.innerHTML = '';
+
+                data.forEach(collab => {
+                    const element = document.createElement('div');
+                    element.className = 'status-item p-4 rounded';
+                    element.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-lg font-semibold text-purple-400">${collab.task}</h4>
+                            <span class="text-green-400">${collab.status}</span>
+                        </div>
+                        <div class="text-sm text-gray-300 mb-2">
+                            Bots: ${collab.bots.join(', ')}
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-purple-400 h-2 rounded-full" style="width: ${(collab.progress / (collab.bots.length * 2)) * 100}%"></div>
+                        </div>
+                        <div class="mt-2 flex justify-end space-x-2">
+                            <button onclick="viewCollaborationDetails(${collab.id})" 
+                                    class="text-blue-400 hover:text-blue-300 text-sm">
+                                Details
+                            </button>
+                            <button onclick="viewCollaborationInsights(${collab.id})" 
+                                    class="text-green-400 hover:text-green-300 text-sm">
+                                Insights
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(element);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function viewCollaborationDetails(collaborationId) {
+            try {
+                const response = await fetch(`/api/ai/collaborations/${collaborationId}`);
+                const data = await response.json();
+                
+                const chat = document.getElementById('collaborationChat');
+                chat.innerHTML = '';
+                
+                data.conversation.forEach(msg => {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'flex items-start space-x-2';
+                    messageElement.innerHTML = `
+                        <span class="text-purple-400">${msg.bot}:</span>
+                        <span class="text-gray-300">${msg.message}</span>
+                    `;
+                    chat.appendChild(messageElement);
+                });
+                
+                chat.scrollTop = chat.scrollHeight;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function viewCollaborationInsights(collaborationId) {
+            try {
+                const response = await fetch(`/api/ai/collaborations/${collaborationId}/insights`);
+                const data = await response.json();
+                
+                const insights = document.getElementById('aiInsights');
+                insights.innerHTML = `
+                    <div class="status-item p-4 rounded">
+                        <h4 class="text-lg font-semibold text-purple-400 mb-2">Collaboration Insights</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Total Messages:</span>
+                                <span class="text-white">${data.total_messages}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Duration:</span>
+                                <span class="text-white">${data.collaboration_duration}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Efficiency Score:</span>
+                                <span class="text-white">${(data.efficiency_score * 100).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            try {
+                const response = await fetch('/api/ai/bots/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bot: 'User',
+                        message: message,
+                        collaboration_id: currentCollaborationId
+                    })
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    viewCollaborationDetails(currentCollaborationId);
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
         }
     </script>
