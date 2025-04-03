@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mountain Gorilla Command Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            line-height: 1;
+        }
+        .bot-card {
+            transition: transform 0.2s;
+        }
+        .bot-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-purple-400 mb-4">Mountain Gorilla Command Center</h1>
+            <p class="text-gray-400">Your AI Bot Management Dashboard</p>
+        </div>
+
+        <!-- Bot Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for name, bot in bots.items() %}
+            <div class="bot-card bg-gray-800 rounded-lg p-6 shadow-lg">
+                <div class="ascii-art text-center mb-4 text-green-400">{{ bot.get_ascii_art() }}</div>
+                <h2 class="text-2xl font-bold text-purple-400 mb-2">{{ name }}</h2>
+                <div class="mb-4">
+                    <span class="text-yellow-400">Level {{ bot.level }}</span>
+                </div>
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-blue-400 mb-2">Abilities:</h3>
+                    <ul class="list-disc list-inside text-gray-300">
+                        {% for ability in bot.abilities %}
+                        <li>{{ ability }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="flex justify-between">
+                    <button onclick="trainBot('{{ name }}')" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                        Train
+                    </button>
+                    <button onclick="showBotDetails('{{ name }}')" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                        Details
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Bot Details Modal -->
+    <div id="botModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="modalTitle" class="text-2xl font-bold text-purple-400"></h2>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="modalContent" class="text-gray-300"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function trainBot(botName) {
+            try {
+                const response = await fetch(`/api/bots/${botName}/train`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Failed to train bot');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to train bot');
+            }
+        }
+
+        async function showBotDetails(botName) {
+            try {
+                const response = await fetch(`/api/bots/${botName}`);
+                const data = await response.json();
+                
+                document.getElementById('modalTitle').textContent = data.name;
+                const modalContent = document.getElementById('modalContent');
+                
+                let content = `
+                    <div class="ascii-art text-center mb-4 text-green-400">${data.ascii_art}</div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-2">Stats:</h3>
+                        <pre class="text-gray-300">${JSON.stringify(data.stats, null, 2)}</pre>
+                    </div>
+                `;
+
+                // Add bot-specific content
+                switch(botName) {
+                    case 'MemoriBot':
+                        const memories = await fetch(`/api/bots/MemoriBot/memories`).then(r => r.json());
+                        content += `
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-blue-400 mb-2">Memories:</h3>
+                                <pre class="text-gray-300">${JSON.stringify(memories, null, 2)}</pre>
+                            </div>
+                        `;
+                        break;
+                    case 'FinanBot':
+                        const balance = await fetch(`/api/bots/FinanBot/balance`).then(r => r.json());
+                        content += `
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-blue-400 mb-2">Balance:</h3>
+                                <pre class="text-gray-300">${JSON.stringify(balance, null, 2)}</pre>
+                            </div>
+                        `;
+                        break;
+                    case 'CoachBot':
+                        const quote = await fetch(`/api/bots/CoachBot/quote`).then(r => r.json());
+                        content += `
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-blue-400 mb-2">Motivational Quote:</h3>
+                                <p class="text-gray-300 italic">${quote.quote}</p>
+                            </div>
+                        `;
+                        break;
+                }
+
+                modalContent.innerHTML = content;
+                document.getElementById('botModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load bot details');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('botModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html> 
