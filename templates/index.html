@@ -126,6 +126,12 @@
                     </svg>
                     <span>AI Collaboration</span>
                 </a>
+                <a href="#" class="flex items-center space-x-2 text-gray-400 hover:text-white" onclick="showStrategies()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    <span>Strategies</span>
+                </a>
                 <a href="#" class="flex items-center space-x-2 text-gray-400 hover:text-white">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
@@ -300,6 +306,111 @@
                         <button onclick="sendChatMessage()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
                             Send
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategies View -->
+            <div id="strategiesView" class="hidden space-y-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-purple-400">Financial Strategies</h2>
+                    <button onclick="showCreateStrategyModal()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Create Strategy</span>
+                    </button>
+                </div>
+
+                <!-- Bot Positions -->
+                <div class="stream-card rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-blue-400 mb-4">Bot Positions</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="status-item p-4 rounded">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-lg font-semibold text-purple-400">FinanBot</h4>
+                                <span class="text-green-400">Active</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Strategy:</span>
+                                    <span class="text-white">Yield Farming</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">APY:</span>
+                                    <span class="text-green-400">12.5%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Risk Level:</span>
+                                    <span class="text-yellow-400">Medium</span>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="bg-green-400 h-2 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-item p-4 rounded">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-lg font-semibold text-purple-400">TradeBot</h4>
+                                <span class="text-green-400">Active</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Strategy:</span>
+                                    <span class="text-white">Grid Trading</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">APY:</span>
+                                    <span class="text-green-400">8.2%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Risk Level:</span>
+                                    <span class="text-red-400">High</span>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="bg-green-400 h-2 rounded-full" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Strategies -->
+                <div class="stream-card rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-blue-400 mb-4">Your Strategies</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="userStrategies">
+                        <!-- User strategies will be populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Strategy Explorer -->
+                <div class="stream-card rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-blue-400 mb-4">Strategy Explorer</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-2">
+                                    <input type="text" id="strategySearch" class="flex-1 bg-gray-700 text-white rounded p-2" placeholder="Search strategies...">
+                                    <button onclick="searchStrategies()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                                        Search
+                                    </button>
+                                </div>
+                                <div class="space-y-2" id="strategyList">
+                                    <!-- Strategy list will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-item p-4 rounded">
+                            <h4 class="text-lg font-semibold text-purple-400 mb-4">Strategy Details</h4>
+                            <div id="strategyDetails" class="space-y-4">
+                                <!-- Strategy details will be populated dynamically -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -537,6 +648,60 @@
                     <button onclick="createCollaboration()" 
                             class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
                         Create Collaboration
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Strategy Modal -->
+    <div id="createStrategyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-purple-400">Create New Strategy</h2>
+                    <button onclick="closeCreateStrategyModal()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 mb-2">Strategy Name</label>
+                        <input type="text" id="strategyName" class="w-full bg-gray-700 text-white rounded p-2" placeholder="Enter strategy name">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Strategy Type</label>
+                        <select id="strategyType" class="w-full bg-gray-700 text-white rounded p-2">
+                            <option value="yield">Yield Farming</option>
+                            <option value="trading">Trading</option>
+                            <option value="lending">Lending</option>
+                            <option value="staking">Staking</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Risk Level</label>
+                        <select id="riskLevel" class="w-full bg-gray-700 text-white rounded p-2">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Strategy Description</label>
+                        <textarea id="strategyDescription" class="w-full bg-gray-700 text-white rounded p-2 h-32" placeholder="Describe your strategy..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Parameters</label>
+                        <div id="strategyParams" class="space-y-2">
+                            <!-- Parameters will be added dynamically based on strategy type -->
+                        </div>
+                    </div>
+                    <button onclick="createStrategy()" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                        Create Strategy
                     </button>
                 </div>
             </div>
@@ -827,7 +992,9 @@
 - mybots: Show My Bots dashboard
 - createbot: Open Create Custom Bot modal
 - ai: Show AI Collaboration dashboard
-- newcollab: Open Create Collaboration modal`;
+- newcollab: Open Create Collaboration modal
+- strategies: Show Financial Strategies dashboard
+- newstrategy: Open Create Strategy modal`;
                     break;
                 case 'status':
                     response = `System Status:
@@ -866,6 +1033,14 @@
                 case 'newcollab':
                     showCreateCollaborationModal();
                     response = 'Opening Create Collaboration modal...';
+                    break;
+                case 'strategies':
+                    showStrategies();
+                    response = 'Showing Financial Strategies dashboard...';
+                    break;
+                case 'newstrategy':
+                    showCreateStrategyModal();
+                    response = 'Opening Create Strategy modal...';
                     break;
                 default:
                     if (cmd.startsWith('train ')) {
@@ -1268,6 +1443,295 @@
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        // Strategies functionality
+        function showStrategies() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('analyticsView').classList.add('hidden');
+            document.getElementById('streamsView').classList.add('hidden');
+            document.getElementById('myBotsView').classList.add('hidden');
+            document.getElementById('aiCollaborationView').classList.add('hidden');
+            document.getElementById('strategiesView').classList.remove('hidden');
+            loadUserStrategies();
+            loadStrategyExplorer();
+        }
+
+        function showCreateStrategyModal() {
+            document.getElementById('createStrategyModal').classList.remove('hidden');
+            updateStrategyParams();
+        }
+
+        function closeCreateStrategyModal() {
+            document.getElementById('createStrategyModal').classList.add('hidden');
+        }
+
+        function updateStrategyParams() {
+            const strategyType = document.getElementById('strategyType').value;
+            const paramsContainer = document.getElementById('strategyParams');
+            paramsContainer.innerHTML = '';
+
+            switch(strategyType) {
+                case 'yield':
+                    paramsContainer.innerHTML = `
+                        <div>
+                            <label class="block text-gray-300 mb-1">Protocol</label>
+                            <input type="text" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., Aave, Compound">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-1">Token</label>
+                            <input type="text" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., USDC, ETH">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-1">Min APY</label>
+                            <input type="number" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., 5">
+                        </div>
+                    `;
+                    break;
+                case 'trading':
+                    paramsContainer.innerHTML = `
+                        <div>
+                            <label class="block text-gray-300 mb-1">Trading Pair</label>
+                            <input type="text" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., ETH/USDT">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-1">Strategy Type</label>
+                            <select class="w-full bg-gray-700 text-white rounded p-2">
+                                <option value="grid">Grid Trading</option>
+                                <option value="dca">Dollar Cost Average</option>
+                                <option value="momentum">Momentum Trading</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-1">Investment Amount</label>
+                            <input type="number" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., 1000">
+                        </div>
+                    `;
+                    break;
+                case 'lending':
+                    paramsContainer.innerHTML = `
+                        <div>
+                            <label class="block text-gray-300 mb-1">Platform</label>
+                            <input type="text" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., Aave, Compound">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-1">Asset</label>
+                            <input type="text" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., ETH, USDC">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-1">Interest Rate</label>
+                            <input type="number" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., 3.5">
+                        </div>
+                    `;
+                    break;
+                case 'staking':
+                    paramsContainer.innerHTML = `
+                        <div>
+                            <label class="block text-gray-300 mb-1">Token</label>
+                            <input type="text" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., ETH, SOL">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-1">Lock Period</label>
+                            <select class="w-full bg-gray-700 text-white rounded p-2">
+                                <option value="7">7 days</option>
+                                <option value="30">30 days</option>
+                                <option value="90">90 days</option>
+                                <option value="180">180 days</option>
+                                <option value="365">365 days</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-1">Reward Rate</label>
+                            <input type="number" class="w-full bg-gray-700 text-white rounded p-2" placeholder="e.g., 5">
+                        </div>
+                    `;
+                    break;
+                case 'custom':
+                    paramsContainer.innerHTML = `
+                        <div>
+                            <label class="block text-gray-300 mb-1">Custom Parameters</label>
+                            <textarea class="w-full bg-gray-700 text-white rounded p-2 h-32" placeholder="Enter custom parameters in JSON format"></textarea>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        function createStrategy() {
+            const name = document.getElementById('strategyName').value;
+            const type = document.getElementById('strategyType').value;
+            const risk = document.getElementById('riskLevel').value;
+            const description = document.getElementById('strategyDescription').value;
+
+            if (!name || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const strategy = {
+                id: Date.now().toString(),
+                name: name,
+                type: type,
+                risk: risk,
+                description: description,
+                created_at: new Date().toISOString(),
+                status: 'active'
+            };
+
+            // Save to localStorage (or API)
+            const strategies = JSON.parse(localStorage.getItem('userStrategies') || '[]');
+            strategies.push(strategy);
+            localStorage.setItem('userStrategies', JSON.stringify(strategies));
+
+            loadUserStrategies();
+            closeCreateStrategyModal();
+        }
+
+        function loadUserStrategies() {
+            const strategies = JSON.parse(localStorage.getItem('userStrategies') || '[]');
+            const container = document.getElementById('userStrategies');
+            container.innerHTML = '';
+
+            strategies.forEach(strategy => {
+                const element = document.createElement('div');
+                element.className = 'status-item p-4 rounded';
+                element.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-lg font-semibold text-purple-400">${strategy.name}</h4>
+                        <span class="text-green-400">${strategy.status}</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Type:</span>
+                            <span class="text-white">${strategy.type}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Risk:</span>
+                            <span class="text-${getRiskColor(strategy.risk)}">${strategy.risk}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-400 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end space-x-2">
+                        <button onclick="editStrategy('${strategy.id}')" 
+                                class="text-blue-400 hover:text-blue-300 text-sm">
+                            Edit
+                        </button>
+                        <button onclick="deleteStrategy('${strategy.id}')" 
+                                class="text-red-400 hover:text-red-300 text-sm">
+                            Delete
+                        </button>
+                    </div>
+                `;
+                container.appendChild(element);
+            });
+        }
+
+        function getRiskColor(risk) {
+            switch(risk) {
+                case 'low': return 'green';
+                case 'medium': return 'yellow';
+                case 'high': return 'red';
+                default: return 'gray';
+            }
+        }
+
+        function loadStrategyExplorer() {
+            const strategies = [
+                {
+                    name: 'Yield Farming Optimizer',
+                    type: 'yield',
+                    description: 'Automatically finds and invests in the highest yielding protocols',
+                    risk: 'medium',
+                    apy: '15-25%'
+                },
+                {
+                    name: 'Grid Trading Bot',
+                    type: 'trading',
+                    description: 'Implements grid trading strategy with customizable parameters',
+                    risk: 'high',
+                    apy: '8-12%'
+                },
+                {
+                    name: 'Lending Protocol Manager',
+                    type: 'lending',
+                    description: 'Manages lending positions across multiple protocols',
+                    risk: 'low',
+                    apy: '3-5%'
+                }
+            ];
+
+            const container = document.getElementById('strategyList');
+            container.innerHTML = '';
+
+            strategies.forEach(strategy => {
+                const element = document.createElement('div');
+                element.className = 'status-item p-4 rounded cursor-pointer hover:bg-gray-700';
+                element.onclick = () => showStrategyDetails(strategy);
+                element.innerHTML = `
+                    <h4 class="text-lg font-semibold text-purple-400">${strategy.name}</h4>
+                    <div class="mt-2 text-sm text-gray-300">${strategy.description}</div>
+                    <div class="mt-2 flex justify-between items-center">
+                        <span class="text-${getRiskColor(strategy.risk)}">${strategy.risk} Risk</span>
+                        <span class="text-green-400">${strategy.apy} APY</span>
+                    </div>
+                `;
+                container.appendChild(element);
+            });
+        }
+
+        function showStrategyDetails(strategy) {
+            const container = document.getElementById('strategyDetails');
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-lg font-semibold text-purple-400">${strategy.name}</h4>
+                        <p class="text-gray-300 mt-2">${strategy.description}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-gray-400">Type:</span>
+                            <span class="text-white ml-2">${strategy.type}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Risk Level:</span>
+                            <span class="text-${getRiskColor(strategy.risk)} ml-2">${strategy.risk}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Expected APY:</span>
+                            <span class="text-green-400 ml-2">${strategy.apy}</span>
+                        </div>
+                    </div>
+                    <button onclick="applyStrategy('${strategy.name}')" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                        Apply Strategy
+                    </button>
+                </div>
+            `;
+        }
+
+        function applyStrategy(strategyName) {
+            // Here you would implement the logic to apply the strategy
+            alert(`Applying strategy: ${strategyName}`);
+        }
+
+        function searchStrategies() {
+            const searchTerm = document.getElementById('strategySearch').value.toLowerCase();
+            const strategies = document.querySelectorAll('#strategyList > div');
+            
+            strategies.forEach(strategy => {
+                const name = strategy.querySelector('h4').textContent.toLowerCase();
+                const description = strategy.querySelector('.text-gray-300').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    strategy.style.display = 'block';
+                } else {
+                    strategy.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>
