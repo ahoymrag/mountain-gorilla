@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mountain Gorilla Command Center</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .ascii-art {
             font-family: monospace;
@@ -13,49 +15,358 @@
         }
         .bot-card {
             transition: transform 0.2s;
+            backdrop-filter: blur(10px);
+            background: rgba(31, 41, 55, 0.7);
         }
         .bot-card:hover {
             transform: translateY(-5px);
         }
+        .glass-nav {
+            backdrop-filter: blur(10px);
+            background: rgba(17, 24, 39, 0.7);
+        }
+        .glass-sidebar {
+            backdrop-filter: blur(10px);
+            background: rgba(17, 24, 39, 0.7);
+        }
+        .terminal {
+            font-family: 'Fira Code', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+        }
+        .status-item {
+            backdrop-filter: blur(5px);
+            background: rgba(31, 41, 55, 0.5);
+        }
+        .stream-card {
+            backdrop-filter: blur(5px);
+            background: rgba(31, 41, 55, 0.5);
+        }
+        .wallet-connected {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-purple-400 mb-4">Mountain Gorilla Command Center</h1>
-            <p class="text-gray-400">Your AI Bot Management Dashboard</p>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+    <!-- Top Navigation -->
+    <nav class="glass-nav border-b border-gray-700 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl font-bold text-purple-400">MGCC</h1>
+                <span class="text-gray-400">|</span>
+                <span class="text-green-400">●</span>
+                <span class="text-gray-400">System Online</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="connectWallet" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    <span>Connect Wallet</span>
+                </button>
+                <div id="walletInfo" class="hidden">
+                    <span class="text-green-400 mr-2">●</span>
+                    <span class="text-gray-300" id="walletAddress"></span>
+                    <span class="text-gray-400 mx-2">|</span>
+                    <span class="text-yellow-400" id="walletBalance"></span>
+                </div>
+                <button class="text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                </button>
+                <button class="text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
+    </nav>
 
-        <!-- Bot Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for name, bot in bots.items() %}
-            <div class="bot-card bg-gray-800 rounded-lg p-6 shadow-lg">
-                <div class="ascii-art text-center mb-4 text-green-400">{{ bot.get_ascii_art() }}</div>
-                <h2 class="text-2xl font-bold text-purple-400 mb-2">{{ name }}</h2>
-                <div class="mb-4">
-                    <span class="text-yellow-400">Level {{ bot.level }}</span>
+    <!-- Main Content Area -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Left Sidebar -->
+        <aside class="glass-sidebar w-64 border-r border-gray-700 p-4">
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center space-x-2 text-purple-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center space-x-2 text-gray-400 hover:text-white" onclick="showAnalytics()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="flex items-center space-x-2 text-gray-400 hover:text-white" onclick="showStreams()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Streams</span>
+                </a>
+                <a href="#" class="flex items-center space-x-2 text-gray-400 hover:text-white" onclick="showMyBots()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <span>My Bots</span>
+                </a>
+                <a href="#" class="flex items-center space-x-2 text-gray-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-auto p-6">
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for name, bot in bots.items() %}
+                <div class="bot-card rounded-lg p-6 shadow-lg">
+                    <div class="ascii-art text-center mb-4 text-green-400">{{ bot.get_ascii_art() }}</div>
+                    <h2 class="text-2xl font-bold text-purple-400 mb-2">{{ name }}</h2>
+                    <div class="mb-4">
+                        <span class="text-yellow-400">Level {{ bot.level }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-2">Abilities:</h3>
+                        <ul class="list-disc list-inside text-gray-300">
+                            {% for ability in bot.abilities %}
+                            <li>{{ ability }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="flex justify-between">
+                        <button onclick="trainBot('{{ name }}')" 
+                                class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                            Train
+                        </button>
+                        <button onclick="showBotDetails('{{ name }}')" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                            Details
+                        </button>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <h3 class="text-lg font-semibold text-blue-400 mb-2">Abilities:</h3>
-                    <ul class="list-disc list-inside text-gray-300">
-                        {% for ability in bot.abilities %}
-                        <li>{{ ability }}</li>
-                        {% endfor %}
-                    </ul>
+                {% endfor %}
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analyticsView" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="stream-card rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-4">Bot Performance</h3>
+                        <div class="chart-container">
+                            <canvas id="botPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stream-card rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-4">Resource Usage</h3>
+                        <div class="chart-container">
+                            <canvas id="resourceUsageChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-between">
-                    <button onclick="trainBot('{{ name }}')" 
-                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
-                        Train
+                <div class="stream-card rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-blue-400 mb-4">Stream Analytics</h3>
+                    <div class="chart-container">
+                        <canvas id="streamAnalyticsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Streams View -->
+            <div id="streamsView" class="hidden space-y-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-purple-400">Active Streams</h2>
+                    <button onclick="showCreateStreamModal()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Create Stream</span>
                     </button>
-                    <button onclick="showBotDetails('{{ name }}')" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                        Details
+                </div>
+                <div id="activeStreams" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Streams will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- My Bots View -->
+            <div id="myBotsView" class="hidden space-y-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-purple-400">My Custom Bots</h2>
+                    <button onclick="showCreateBotModal()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Create Custom Bot</span>
+                    </button>
+                </div>
+                
+                <!-- Custom Bots Grid -->
+                <div id="customBotsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Custom bots will be populated dynamically -->
+                </div>
+
+                <!-- Available Components -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-purple-400 mb-4">Available Components</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="stream-card p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-400 mb-2">Memory Module</h4>
+                            <p class="text-gray-300 text-sm">Store and retrieve information</p>
+                            <div class="mt-2 text-xs text-gray-400">From MemoriBot</div>
+                        </div>
+                        <div class="stream-card p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-400 mb-2">Finance Module</h4>
+                            <p class="text-gray-300 text-sm">Handle transactions and budgets</p>
+                            <div class="mt-2 text-xs text-gray-400">From FinanBot</div>
+                        </div>
+                        <div class="stream-card p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-400 mb-2">Trading Module</h4>
+                            <p class="text-gray-300 text-sm">Market analysis and trading</p>
+                            <div class="mt-2 text-xs text-gray-400">From TradeBot</div>
+                        </div>
+                        <div class="stream-card p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-400 mb-2">Task Module</h4>
+                            <p class="text-gray-300 text-sm">Task management and scheduling</p>
+                            <div class="mt-2 text-xs text-gray-400">From TaskBot</div>
+                        </div>
+                        <div class="stream-card p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-blue-400 mb-2">Coaching Module</h4>
+                            <p class="text-gray-300 text-sm">Motivation and guidance</p>
+                            <div class="mt-2 text-xs text-gray-400">From CoachBot</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar (Status) -->
+        <aside class="glass-sidebar w-64 border-l border-gray-700 p-4">
+            <h2 class="text-lg font-semibold text-purple-400 mb-4">System Status</h2>
+            <div class="space-y-4">
+                <div class="status-item p-3 rounded">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-300">CPU Usage</span>
+                        <span class="text-green-400">45%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-green-400 h-2 rounded-full" style="width: 45%"></div>
+                    </div>
+                </div>
+                <div class="status-item p-3 rounded">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-300">Memory</span>
+                        <span class="text-green-400">2.4GB/8GB</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-green-400 h-2 rounded-full" style="width: 30%"></div>
+                    </div>
+                </div>
+                <div class="status-item p-3 rounded">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-300">Network</span>
+                        <span class="text-green-400">Active</span>
+                    </div>
+                    <div class="text-sm text-gray-400">Up: 1.2MB/s</div>
+                    <div class="text-sm text-gray-400">Down: 2.4MB/s</div>
+                </div>
+                <div class="status-item p-3 rounded">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-300">Active Streams</span>
+                        <span class="text-green-400" id="activeStreamsCount">0</span>
+                    </div>
+                    <div class="text-sm text-gray-400">Total Value: <span id="totalStreamValue">0 ETH</span></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Bottom Terminal -->
+    <div class="terminal border-t border-gray-700 h-48 p-4">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-2">
+                <span class="text-green-400">$</span>
+                <span class="text-gray-400">MGCC Terminal</span>
+            </div>
+            <div class="flex space-x-2">
+                <button class="text-gray-400 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+                <button class="text-gray-400 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="terminal-output" class="h-32 overflow-y-auto font-mono text-sm">
+            <div class="text-gray-400">Welcome to MGCC Terminal v1.0</div>
+            <div class="text-gray-400">Type 'help' for available commands</div>
+        </div>
+        <div class="flex items-center mt-2">
+            <span class="text-green-400 mr-2">$</span>
+            <input type="text" id="terminal-input" class="flex-1 bg-transparent border-none focus:outline-none text-green-400" placeholder="Enter command...">
+        </div>
+    </div>
+
+    <!-- Create Stream Modal -->
+    <div id="createStreamModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-purple-400">Create New Stream</h2>
+                    <button onclick="closeCreateStreamModal()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 mb-2">Select Bot</label>
+                        <select id="streamBotSelect" class="w-full bg-gray-700 text-white rounded p-2">
+                            {% for name, bot in bots.items() %}
+                            <option value="{{ name }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Amount (ETH)</label>
+                        <input type="number" id="streamAmount" class="w-full bg-gray-700 text-white rounded p-2" step="0.001" min="0">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Duration</label>
+                        <select id="streamDuration" class="w-full bg-gray-700 text-white rounded p-2">
+                            <option value="30">30 Days</option>
+                            <option value="60">60 Days</option>
+                            <option value="90">90 Days</option>
+                            <option value="180">180 Days</option>
+                            <option value="365">365 Days</option>
+                        </select>
+                    </div>
+                    <button onclick="createStream()" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                        Create Stream
                     </button>
                 </div>
             </div>
-            {% endfor %}
         </div>
     </div>
 
@@ -76,7 +387,393 @@
         </div>
     </div>
 
+    <!-- Create Custom Bot Modal -->
+    <div id="createBotModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-purple-400">Create Custom Bot</h2>
+                    <button onclick="closeCreateBotModal()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 mb-2">Bot Name</label>
+                        <input type="text" id="botName" class="w-full bg-gray-700 text-white rounded p-2" placeholder="Enter bot name">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Select Components</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="memory">
+                                <span class="text-gray-300">Memory Module</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="finance">
+                                <span class="text-gray-300">Finance Module</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="trading">
+                                <span class="text-gray-300">Trading Module</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="task">
+                                <span class="text-gray-300">Task Module</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-purple-600" value="coaching">
+                                <span class="text-gray-300">Coaching Module</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Custom ASCII Art</label>
+                        <textarea id="customAscii" class="w-full bg-gray-700 text-white rounded p-2 h-32 font-mono" placeholder="Enter custom ASCII art"></textarea>
+                    </div>
+                    <button onclick="createCustomBot()" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                        Create Bot
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Web3 Integration
+        let web3;
+        let userAccount;
+        let contract;
+
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    web3 = new Web3(window.ethereum);
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    updateWalletUI();
+                    loadStreams();
+                } catch (error) {
+                    console.error('User denied account access');
+                }
+            } else {
+                alert('Please install MetaMask!');
+            }
+        }
+
+        function updateWalletUI() {
+            document.getElementById('connectWallet').classList.add('hidden');
+            document.getElementById('walletInfo').classList.remove('hidden');
+            document.getElementById('walletAddress').textContent = 
+                userAccount.substring(0, 6) + '...' + userAccount.substring(38);
+            updateWalletBalance();
+        }
+
+        async function updateWalletBalance() {
+            if (web3 && userAccount) {
+                const balance = await web3.eth.getBalance(userAccount);
+                document.getElementById('walletBalance').textContent = 
+                    web3.utils.fromWei(balance, 'ether').substring(0, 4) + ' ETH';
+            }
+        }
+
+        // Stream Management
+        function showCreateStreamModal() {
+            document.getElementById('createStreamModal').classList.remove('hidden');
+        }
+
+        function closeCreateStreamModal() {
+            document.getElementById('createStreamModal').classList.add('hidden');
+        }
+
+        async function createStream() {
+            const bot = document.getElementById('streamBotSelect').value;
+            const amount = document.getElementById('streamAmount').value;
+            const duration = document.getElementById('streamDuration').value;
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            try {
+                const weiAmount = web3.utils.toWei(amount.toString(), 'ether');
+                // Here you would interact with your smart contract
+                // For now, we'll just simulate it
+                const stream = {
+                    id: Date.now(),
+                    bot: bot,
+                    amount: amount,
+                    duration: duration,
+                    startDate: new Date(),
+                    status: 'active'
+                };
+
+                addStreamToUI(stream);
+                closeCreateStreamModal();
+                updateStreamStats();
+            } catch (error) {
+                console.error('Error creating stream:', error);
+                alert('Failed to create stream');
+            }
+        }
+
+        function addStreamToUI(stream) {
+            const streamsContainer = document.getElementById('activeStreams');
+            const streamElement = document.createElement('div');
+            streamElement.className = 'stream-card rounded-lg p-6';
+            streamElement.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-semibold text-purple-400">${stream.bot}</h3>
+                    <span class="text-green-400">Active</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Amount:</span>
+                        <span class="text-white">${stream.amount} ETH</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Duration:</span>
+                        <span class="text-white">${stream.duration} days</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Started:</span>
+                        <span class="text-white">${new Date(stream.startDate).toLocaleDateString()}</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-purple-400 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            `;
+            streamsContainer.appendChild(streamElement);
+        }
+
+        function updateStreamStats() {
+            const streams = document.querySelectorAll('.stream-card');
+            document.getElementById('activeStreamsCount').textContent = streams.length;
+            
+            let totalValue = 0;
+            streams.forEach(stream => {
+                const amount = parseFloat(stream.querySelector('.text-white').textContent);
+                totalValue += amount;
+            });
+            
+            document.getElementById('totalStreamValue').textContent = totalValue.toFixed(2) + ' ETH';
+        }
+
+        // Analytics
+        function showAnalytics() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('streamsView').classList.add('hidden');
+            document.getElementById('analyticsView').classList.remove('hidden');
+            initializeCharts();
+        }
+
+        function showStreams() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('analyticsView').classList.add('hidden');
+            document.getElementById('streamsView').classList.remove('hidden');
+        }
+
+        function initializeCharts() {
+            // Bot Performance Chart
+            new Chart(document.getElementById('botPerformanceChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Performance Score',
+                        data: [65, 72, 78, 85, 82, 90],
+                        borderColor: '#8B5CF6',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#E5E7EB'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.2)'
+                            },
+                            ticks: {
+                                color: '#E5E7EB'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.2)'
+                            },
+                            ticks: {
+                                color: '#E5E7EB'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Resource Usage Chart
+            new Chart(document.getElementById('resourceUsageChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['CPU', 'Memory', 'Network'],
+                    datasets: [{
+                        data: [45, 30, 25],
+                        backgroundColor: ['#8B5CF6', '#3B82F6', '#10B981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#E5E7EB'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Stream Analytics Chart
+            new Chart(document.getElementById('streamAnalyticsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['MemoriBot', 'FinanBot', 'TradeBot', 'TaskBot', 'CoachBot'],
+                    datasets: [{
+                        label: 'Active Streams',
+                        data: [2, 3, 1, 0, 1],
+                        backgroundColor: '#8B5CF6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#E5E7EB'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.2)'
+                            },
+                            ticks: {
+                                color: '#E5E7EB'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.2)'
+                            },
+                            ticks: {
+                                color: '#E5E7EB'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event Listeners
+        document.getElementById('connectWallet').addEventListener('click', connectWallet);
+
+        // Existing terminal functionality
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+
+        terminalInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value;
+                this.value = '';
+                
+                terminalOutput.innerHTML += `<div class="text-green-400">$ ${command}</div>`;
+                processCommand(command);
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            }
+        });
+
+        function processCommand(command) {
+            const cmd = command.toLowerCase();
+            let response = '';
+            
+            switch(cmd) {
+                case 'help':
+                    response = `Available commands:
+- help: Show this help message
+- status: Show system status
+- clear: Clear terminal
+- bots: List all bots
+- train <bot>: Train a specific bot
+- details <bot>: Show bot details
+- streams: Show active streams
+- analytics: Show analytics dashboard
+- mybots: Show My Bots dashboard
+- createbot: Open Create Custom Bot modal`;
+                    break;
+                case 'status':
+                    response = `System Status:
+- CPU: 45%
+- Memory: 2.4GB/8GB
+- Network: Active
+- Bots: 5 Active
+- Active Streams: ${document.getElementById('activeStreamsCount').textContent}`;
+                    break;
+                case 'clear':
+                    terminalOutput.innerHTML = '';
+                    return;
+                case 'bots':
+                    response = Object.keys(bots).join(', ');
+                    break;
+                case 'streams':
+                    showStreams();
+                    response = 'Showing streams dashboard...';
+                    break;
+                case 'analytics':
+                    showAnalytics();
+                    response = 'Showing analytics dashboard...';
+                    break;
+                case 'mybots':
+                    showMyBots();
+                    response = 'Showing My Bots dashboard...';
+                    break;
+                case 'createbot':
+                    showCreateBotModal();
+                    response = 'Opening Create Custom Bot modal...';
+                    break;
+                default:
+                    if (cmd.startsWith('train ')) {
+                        const botName = cmd.split(' ')[1];
+                        trainBot(botName);
+                        response = `Training ${botName}...`;
+                    } else if (cmd.startsWith('details ')) {
+                        const botName = cmd.split(' ')[1];
+                        showBotDetails(botName);
+                        response = `Showing details for ${botName}...`;
+                    } else {
+                        response = `Command not found: ${command}`;
+                    }
+            }
+            
+            terminalOutput.innerHTML += `<div class="text-gray-300">${response}</div>`;
+        }
+
+        // Existing bot functions
         async function trainBot(botName) {
             try {
                 const response = await fetch(`/api/bots/${botName}/train`, {
@@ -151,6 +848,140 @@
 
         function closeModal() {
             document.getElementById('botModal').classList.add('hidden');
+        }
+
+        // My Bots functionality
+        function showMyBots() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('analyticsView').classList.add('hidden');
+            document.getElementById('streamsView').classList.add('hidden');
+            document.getElementById('myBotsView').classList.remove('hidden');
+            loadCustomBots();
+        }
+
+        function showCreateBotModal() {
+            document.getElementById('createBotModal').classList.remove('hidden');
+        }
+
+        function closeCreateBotModal() {
+            document.getElementById('createBotModal').classList.add('hidden');
+        }
+
+        function loadCustomBots() {
+            // Load custom bots from localStorage or API
+            const customBots = JSON.parse(localStorage.getItem('customBots') || '[]');
+            const grid = document.getElementById('customBotsGrid');
+            grid.innerHTML = '';
+
+            customBots.forEach(bot => {
+                const botElement = document.createElement('div');
+                botElement.className = 'bot-card rounded-lg p-6 shadow-lg';
+                botElement.innerHTML = `
+                    <div class="ascii-art text-center mb-4 text-green-400">${bot.ascii_art}</div>
+                    <h2 class="text-2xl font-bold text-purple-400 mb-2">${bot.name}</h2>
+                    <div class="mb-4">
+                        <span class="text-yellow-400">Custom Bot</span>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-2">Components:</h3>
+                        <ul class="list-disc list-inside text-gray-300">
+                            ${bot.components.map(comp => `<li>${comp}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="flex justify-between">
+                        <button onclick="trainCustomBot('${bot.id}')" 
+                                class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                            Train
+                        </button>
+                        <button onclick="showCustomBotDetails('${bot.id}')" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                            Details
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(botElement);
+            });
+        }
+
+        function createCustomBot() {
+            const name = document.getElementById('botName').value;
+            const components = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            const asciiArt = document.getElementById('customAscii').value;
+
+            if (!name || components.length === 0) {
+                alert('Please enter a name and select at least one component');
+                return;
+            }
+
+            const bot = {
+                id: Date.now().toString(),
+                name: name,
+                components: components,
+                ascii_art: asciiArt || bot_ascii[components[0]], // Use first component's ASCII art if none provided
+                level: 1,
+                created_at: new Date().toISOString()
+            };
+
+            // Save to localStorage (or API)
+            const customBots = JSON.parse(localStorage.getItem('customBots') || '[]');
+            customBots.push(bot);
+            localStorage.setItem('customBots', JSON.stringify(customBots));
+
+            loadCustomBots();
+            closeCreateBotModal();
+        }
+
+        async function trainCustomBot(botId) {
+            try {
+                const response = await fetch(`/api/custom-bots/${botId}/train`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    loadCustomBots();
+                } else {
+                    alert('Failed to train bot');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to train bot');
+            }
+        }
+
+        async function showCustomBotDetails(botId) {
+            try {
+                const customBots = JSON.parse(localStorage.getItem('customBots') || '[]');
+                const bot = customBots.find(b => b.id === botId);
+                
+                if (!bot) {
+                    alert('Bot not found');
+                    return;
+                }
+
+                document.getElementById('modalTitle').textContent = bot.name;
+                const modalContent = document.getElementById('modalContent');
+                
+                let content = `
+                    <div class="ascii-art text-center mb-4 text-green-400">${bot.ascii_art}</div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-2">Components:</h3>
+                        <ul class="list-disc list-inside text-gray-300">
+                            ${bot.components.map(comp => `<li>${comp}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-2">Created:</h3>
+                        <p class="text-gray-300">${new Date(bot.created_at).toLocaleString()}</p>
+                    </div>
+                `;
+
+                modalContent.innerHTML = content;
+                document.getElementById('botModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load bot details');
+            }
         }
     </script>
 </body>
