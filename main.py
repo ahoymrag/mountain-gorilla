@@ -19,12 +19,14 @@ from rich.style import Style
 from rich.live import Live
 from rich.table import Table
 from mountain_gorilla.cli import mgcc_cli
+from mountain_gorilla.dashboard import create_simple_dashboard, TerminalDashboard
 
 console = Console()
 
-def animate_banner(text: str, delay: float = 0.03) -> None:
+def animate_banner(text: str, delay: float = 0.001) -> None:
     """
-    Print a string character-by-character with a small delay for a typing-like animation.
+    Print a string character-by-character with a very small delay for a typing-like animation.
+    Speed increased by 2000% (from 0.03 to 0.001).
     """
     for char in text:
         console.print(char, end="", style="bold magenta")
@@ -47,24 +49,24 @@ def finance_portal():
     """
     console.clear()
     show_ascii_title()
-    animate_banner("MOUNTAIN GORILLA FINANCE PORTAL\n", delay=0.02)
-
-    console.print(
-        Panel(
-            "[bold green]Welcome to the MGCC Finance Portal![/bold green]\n"
-            "Here, you can view your balance, track your spending, and adopt\n"
-            "various budgeting or investment strategies.\n\n"
-            "[bold]Select an action below:[/bold]\n"
-            "  [1] Check Balance\n"
-            "  [2] Show Monthly Spending\n"
-            "  [3] Adopt a Strategy\n"
-            "  [r] Return to Main Menu\n",
-            border_style="magenta",
-            title="Finance Portal",
-        )
-    )
+    animate_banner("MOUNTAIN GORILLA FINANCE PORTAL\n", delay=0.001)
 
     while True:
+        console.print(
+            Panel(
+                "[bold green]Welcome to the MGCC Finance Portal![/bold green]\n"
+                "Here, you can view your balance, track your spending, and adopt\n"
+                "various budgeting or investment strategies.\n\n"
+                "[bold]Select an action below:[/bold]\n"
+                "  [1] Check Balance\n"
+                "  [2] Show Monthly Spending\n"
+                "  [3] Adopt a Strategy\n"
+                "  [Enter] Return to Main Menu\n",
+                border_style="magenta",
+                title="Finance Portal",
+            )
+        )
+
         choice = console.input("[bold yellow]Finance Action[/]: ").strip().lower()
         if choice == "1":
             console.print("[bold cyan]Your current balance is: $3,141.59[/bold cyan]")
@@ -72,15 +74,35 @@ def finance_portal():
             console.print("[bold cyan]Current monthly spending: $314.15[/bold cyan]")
         elif choice == "3":
             console.print("[bold cyan]Strategy adopted! Plan: 'Aggressive Gorilla Growth'[/bold cyan]")
-        elif choice == "r":
+        elif choice == "" or choice == "back" or choice == "b":
             break
         else:
             console.print("[bold red]Invalid choice. Please try again![/bold red]")
+            console.print("[bold blue]Press Enter to return to main menu[/bold blue]")
 
         console.print("[bold green]Action complete![/bold green]\n")
-        time.sleep(1)
+        time.sleep(0.5)  # Reduced wait time
     console.print("[bold blue]Returning to the MGCC Main Menu...[/bold blue]")
-    time.sleep(1)
+    time.sleep(0.5)  # Reduced wait time
+
+def live_dashboard():
+    """
+    Launch the live terminal dashboard with real-time updates.
+    """
+    console.clear()
+    console.print("[bold cyan]Launching Live Dashboard...[/bold cyan]")
+    time.sleep(0.5)  # Reduced wait time
+    
+    try:
+        dashboard = TerminalDashboard()
+        dashboard.run()
+    except KeyboardInterrupt:
+        console.print("\n[bold yellow]Dashboard interrupted by user[/bold yellow]")
+    except Exception as e:
+        console.print(f"[bold red]Dashboard error: {e}[/bold red]")
+    
+    console.print("[bold blue]Returning to main menu...[/bold blue]")
+    time.sleep(0.5)  # Reduced wait time
 
 def tutorial_sequence():
     """
@@ -88,10 +110,10 @@ def tutorial_sequence():
     for each bot, including newly introduced finance concepts.
     """
     console.clear()
-    animate_banner("[bold cyan]MOUNTAIN GORILLA TUTORIAL[/bold cyan]\n", delay=0.02)
+    animate_banner("[bold cyan]MOUNTAIN GORILLA TUTORIAL[/bold cyan]\n", delay=0.001)
     show_ascii_title()
     console.print(Panel("[bold magenta]Welcome to the MGCC Tutorial![/bold magenta]", border_style="magenta"))
-    time.sleep(1.0)
+    time.sleep(0.5)  # Reduced wait time
 
     with Live(refresh_per_second=4) as live:
         table = Table(show_header=True, header_style="bold blue")
@@ -108,7 +130,7 @@ def tutorial_sequence():
         """
         table.add_row("[bold magenta]MemoriBot[/bold magenta]", f"[white]{memori_ascii}[/white]")
         live.update(table)
-        time.sleep(2.5)
+        time.sleep(1.0)  # Reduced wait time
 
         # Bot #2: FinanBot
         finan_ascii = r"""
@@ -119,7 +141,7 @@ def tutorial_sequence():
         """
         table.add_row("[bold magenta]FinanBot[/bold magenta]", f"[white]{finan_ascii}[/white]")
         live.update(table)
-        time.sleep(2.5)
+        time.sleep(1.0)  # Reduced wait time
 
         # Bot #3: ChronoBot
         chrono_ascii = """
@@ -131,12 +153,12 @@ def tutorial_sequence():
         """
         table.add_row("[bold magenta]ChronoBot[/bold magenta]", f"[white]{chrono_ascii}[/white]")
         live.update(table)
-        time.sleep(2.5)
+        time.sleep(1.0)  # Reduced wait time
 
     console.print("[bold green]\nTutorial Complete![/bold green]")
     console.print("Use the MGCC main menu to [bold cyan]Summon, Train, or Interact[/bold cyan] with each bot.\n")
     console.print("[bold blue]Returning to the main menu shortly...[/bold blue]")
-    time.sleep(2)
+    time.sleep(1.0)  # Reduced wait time
 
 def main_menu():
     """
@@ -146,8 +168,8 @@ def main_menu():
     """
     console.clear()
     show_ascii_title()
-    animate_banner("Welcome to the Mountain Gorilla Command Center!\n", delay=0.02)
-    time.sleep(0.5)
+    animate_banner("Welcome to the Mountain Gorilla Command Center!\n", delay=0.001)
+    time.sleep(0.2)  # Reduced wait time
 
     while True:
         console.print(
@@ -159,6 +181,8 @@ def main_menu():
                     "[4] Show MGCC Version\n"
                     "[5] Launch Dashboard\n"
                     "[6] Finance Portal\n"
+                    "[7] Live Terminal Dashboard\n"
+                    "[8] Quick Portfolio Summary\n"
                     "[T] Tutorial\n"
                     "[q] Quit\n",
                     style="bold cyan"
@@ -184,6 +208,14 @@ def main_menu():
             mgcc_cli(standalone_mode=False, args=["dashboard"])
         elif choice == "6":
             finance_portal()
+        elif choice == "7":
+            live_dashboard()
+        elif choice == "8":
+            console.clear()
+            show_ascii_title()
+            create_simple_dashboard()
+            console.print("\n[bold blue]Press Enter to return to main menu...[/bold blue]")
+            input()
         elif choice == "t":
             tutorial_sequence()
         elif choice == "q":
@@ -191,13 +223,14 @@ def main_menu():
             sys.exit(0)
         else:
             console.print("[bold red]Invalid choice. Please try again![/bold red]")
+            console.print("[bold blue]Type 'q' to quit or select a valid option[/bold blue]")
 
         console.print("")
         console.print("[bold green]Returning to main menu...[/bold green]")
-        time.sleep(1)
+        time.sleep(0.5)  # Reduced wait time
         console.clear()
         show_ascii_title()
-        animate_banner("Welcome back to the Mountain Gorilla Command Center!", delay=0.02)
+        animate_banner("Welcome back to the Mountain Gorilla Command Center!", delay=0.001)
         console.print()
 
 if __name__ == "__main__":
